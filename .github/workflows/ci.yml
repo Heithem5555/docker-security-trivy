@@ -1,24 +1,28 @@
-name: Analyse Sécurité Docker
+name: Trivy Security Scan
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  build-and-scan:
+  trivy-scan:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: docker build -t monapp:latest .
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.50.1_Linux-64bit.deb
 
-      - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'monapp:latest'
-          format: 'table'
-          exit-code: '1'
-          severity: 'HIGH,CRITICAL'
+      - name: Build Docker image
+        run: |
+          docker build -t my-image:latest .
+
+      - name: Run Trivy scan
+        run: |
+          trivy image --severity HIGH,CRITICAL --exit-code 1 my-image:latest

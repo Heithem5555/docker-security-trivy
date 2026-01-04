@@ -1,17 +1,22 @@
-FROM python:3.10-slim
+FROM python:3.10-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get upgrade -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m appuser
 
 WORKDIR /app
-COPY . .
 
-RUN pip install -r requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Add a non-root user
-RUN adduser --disabled-password appuser
+COPY app.py .
+
 USER appuser
 
 EXPOSE 5000
-
-# Add a healthcheck for better reliability
-HEALTHCHECK CMD curl --fail http://localhost:5000 || exit 1
-
 CMD ["python", "app.py"]
