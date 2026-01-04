@@ -30,3 +30,9 @@ CD (Continuous Deployment):
 
 The CI pipeline blocks the build if Trivy detects HIGH or CRITICAL
 vulnerabilities, preventing insecure Docker images from being deployed.
+
+Some HIGH and CRITICAL vulnerabilities originate from the base operating
+system and have no available fixes. To mitigate risk, a minimal base
+image was used and the application runs as a non-root user.
+Remaining vulnerabilities are monitored and handled through CI
+security gates.
