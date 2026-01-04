@@ -12,17 +12,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Trivy
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget
-          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
-          sudo dpkg -i trivy_0.50.1_Linux-64bit.deb
-
       - name: Build Docker image
         run: |
           docker build -t my-image:latest .
 
-      - name: Run Trivy scan
-        run: |
-          trivy image --severity HIGH,CRITICAL --exit-code 1 my-image:latest
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: image
+          image-ref: my-image:latest
+          severity: HIGH,CRITICAL
+          exit-code: 1
